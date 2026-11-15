@@ -1,49 +1,40 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import javax.swing.JOptionPane;
 
-public class Goldbach extends Frame {
-    TextField txt = new TextField(8);
-    TextArea result = new TextArea(8, 40);
-    Label processing = new Label("                    ");
-    Button button = new Button("Calculate");
-    int q;
+public class Goldbach {
 
-    static String calculate(int x) {
-        if (x % 2 != 0 || x <= 2) return "Enter an even number greater than two";
-        boolean[] c = new boolean[x + 1];
-        for (int i = 2; i <= x; i++) if (!c[i]) for (int j = 2 * i; j <= x; j += i) c[j] = true;
-        java.util.List<String> l = new ArrayList<>();
-        for (int a = x / 2; a <= x - 2; a++) if (!c[a] && !c[x - a]) l.add("[" + a + ", " + (x - a) + "]");
-        return l.toString();
+    public static void main(String[] args) {
+        String input = JOptionPane.showInputDialog("Enter an even number greater than two");
+        int evenNumber = Integer.parseInt(input);
+
+        if (evenNumber % 2 != 0 || evenNumber <= 2) {
+            JOptionPane.showMessageDialog(null, "Enter an even number greater than two");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(null, findPrimePairs(evenNumber));
     }
 
-    Goldbach() {
-        super("Goldbach's Conjecture");
-        setLayout(new FlowLayout());
-        add(txt); add(button); add(processing); add(result);
-        txt.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (c >= ' ' && (!Character.isDigit(c) || txt.getText().length() >= 8)) e.consume();
+    private static String findPrimePairs(int evenNumber) {
+        String primePairs = "";
+
+        for (int first = 2; first <= evenNumber / 2; first++) {
+            int second = evenNumber - first;
+
+            if (isPrime(first) && isPrime(second)) {
+                primePairs += first + " + " + second + "\n";
             }
-        });
-        ActionListener start = e -> {
-            if (txt.getText().isEmpty()) return;
-            int x_input = Integer.parseInt(txt.getText()), id = ++q;
-            result.setText("");
-            processing.setText("Processing");
-            new Thread(() -> {
-                String r = calculate(x_input);
-                EventQueue.invokeLater(() -> { if (id == q) { result.setText(r); processing.setText(""); } });
-            }).start();
-        };
-        txt.addActionListener(start);
-        button.addActionListener(start);
-        addWindowListener(new WindowAdapter() { public void windowClosing(WindowEvent e) { System.exit(0); } });
-        setSize(520, 300);
-        setVisible(true);
+        }
+
+        return primePairs;
     }
 
-    public static void main(String[] args) { new Goldbach(); }
+    private static boolean isPrime(int number) {
+        for (int divisor = 2; divisor * divisor <= number; divisor++) {
+            if (number % divisor == 0) {
+                return false;
+            }
+        }
+
+        return number >= 2;
+    }
 }
